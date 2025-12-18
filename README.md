@@ -46,4 +46,4 @@ Jika ingin menjalankan server tanpa Docker (memerlukan MySQL & Redis lokal):
 3. Generate Prisma client: `bun run db:generate`
 4. Jalankan mode dev: `bun run dev`
 
-SELAMAT MENCOBA TEMAN2
+SELAMAT MENCOBA TEMAN2 !!!
