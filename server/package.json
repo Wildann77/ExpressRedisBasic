@@ -4,9 +4,9 @@
     "description": "Redis cache testing with Express + TypeScript + Bun",
     "scripts": {
         "dev": "bun run --watch src/index.ts",
-        "start": "bun run src/index.ts",
+        "start": "prisma db push && bun run src/index.ts",
         "db:generate": "prisma generate",
-        "postinstall": "prisma generate"
+        "db:push": "prisma db push"
     },
     "dependencies": {
         "dotenv": "^17.2.3",
