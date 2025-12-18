@@ -45,3 +45,5 @@ Jika ingin menjalankan server tanpa Docker (memerlukan MySQL & Redis lokal):
 2. Install dependensi: `bun install`
 3. Generate Prisma client: `bun run db:generate`
 4. Jalankan mode dev: `bun run dev`
+
+SELAMAT MENCOBA 
