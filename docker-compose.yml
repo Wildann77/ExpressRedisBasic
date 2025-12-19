@@ -1,5 +1,5 @@
 services:
-  # Express app dengan Bun runtime
+  # Shared configuration for the app
   app:
     build:
       context: ./server
@@ -10,27 +10,39 @@ services:
       - REDIS_PORT=6379
       - MYSQL_HOST=mysql
       - MYSQL_PORT=3306
-      - MYSQL_USER=testuser
-      - MYSQL_PASSWORD=testpass
-      - MYSQL_DATABASE=testdb
-      - DATABASE_URL=mysql://testuser:testpass@mysql:3306/testdb
+      - MYSQL_USER=${MYSQL_USER:-testuser}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-testpass}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-testdb}
+      - DATABASE_URL=mysql://${MYSQL_USER:-testuser}:${MYSQL_PASSWORD:-testpass}@mysql:3306/${MYSQL_DATABASE:-testdb}
       - PORT=3000
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     depends_on:
-      - redis
-      - mysql
+      redis:
+        condition: service_started
+      mysql:
+        condition: service_healthy
     networks:
       - app-network
-    restart: unless-stopped
 
   # Redis cache
   redis:
     image: redis:7-alpine
     container_name: redis-test-cache
-    ports:
-      - "6379:6379"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
     networks:
       - app-network
-    restart: unless-stopped
     command: redis-server --appendonly yes
     volumes:
       - redis-data:/data
@@ -40,15 +52,22 @@ services:
     image: mysql:8
     container_name: redis-test-db
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: testdb
-      MYSQL_USER: testuser
-      MYSQL_PASSWORD: testpass
-    ports:
-      - "3306:3306"
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-testdb}
+      MYSQL_USER: ${MYSQL_USER:-testuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-testpass}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${MYSQL_USER:-testuser}", "-p${MYSQL_PASSWORD:-testpass}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - app-network
-    restart: unless-stopped
     volumes:
       - mysql-data:/var/lib/mysql
 
@@ -56,15 +75,12 @@ services:
   nginx:
     image: nginx:alpine
     container_name: redis-test-nginx
-    ports:
-      - "80:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
     networks:
       - app-network
-    restart: unless-stopped
 
 networks:
   app-network:

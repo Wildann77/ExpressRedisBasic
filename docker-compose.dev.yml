@@ -1,0 +1,32 @@
+services:
+  app:
+    command: bun run dev
+    tty: true
+    stdin_open: true
+    volumes:
+      - /app/node_modules # tetap simpan agar node_modules di container tidak terhapus
+    develop:
+      watch:
+        - action: sync
+          path: ./server
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./server/package.json
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  mysql:
+    ports:
+      - "3306:3306"
+
+  nginx:
+    ports:
+      - "80:80"

@@ -28,6 +28,17 @@ Pastikan Docker sudah berjalan, kemudian eksekusi perintah berikut:
 ```bash
 docker-compose up -d --build
 ```
+Untuk dev mode (Modern Watch), gunakan:
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --watch
+```
+*(Fitur ini otomatis memantau perubahan kode dan melakukan sync ke container tanpa perlu restart manual).*
+
+Untuk production mode, gunakan:
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d 
+```
+
 Perintah ini akan membangun image server dan menjalankan semua layanan (App, MySQL, Redis, Nginx).
 
 ### 3. Akses API

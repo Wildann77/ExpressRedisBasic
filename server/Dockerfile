@@ -18,6 +18,9 @@ FROM base AS release
 COPY --from=install /app/node_modules ./node_modules
 COPY --from=prerelease /app ./
 
+# Jalankan sebagai user non-root untuk keamanan
+USER bun
+
 # Ekspos port 3000
 EXPOSE 3000
 
